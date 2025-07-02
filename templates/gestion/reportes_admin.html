@@ -1,0 +1,237 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Reportes Administrativos - Padel Paraguaná{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-5">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header de la página -->
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4 border-bottom">
+                <h1 class="h2">
+                    <i class="bi bi-bar-chart-line-fill me-2"></i>
+                    Reportes Administrativos
+                </h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <a href="{% url 'dashboard_admin' %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-1"></i>
+                        Volver al Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mensajes de Django -->
+    {% if messages %}
+        <div class="row justify-content-center">
+            <div class="col-12">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Filtros de Fecha -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="bi bi-funnel me-2"></i>
+                        Filtrar Reportes por Fecha
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="get" class="row g-3 align-items-end">
+                        <div class="col-md-4">
+                            <label for="fecha_desde" class="form-label">Fecha Desde:</label>
+                            <input type="date" class="form-control" id="fecha_desde" name="fecha_desde" value="{{ fecha_desde|date:'Y-m-d' }}">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="fecha_hasta" class="form-label">Fecha Hasta:</label>
+                            <input type="date" class="form-control" id="fecha_hasta" name="fecha_hasta" value="{{ fecha_hasta|date:'Y-m-d' }}">
+                        </div>
+                        <div class="col-md-4">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="bi bi-filter me-2"></i>
+                                Aplicar Filtro
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estadísticas Generales -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card bg-primary text-white shadow-sm h-100">
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="mb-0">{{ estadisticas.total_reservas }}</h4>
+                            <p class="mb-0">Total Reservas</p>
+                        </div>
+                        <i class="bi bi-calendar-event display-6"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card bg-success text-white shadow-sm h-100">
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="mb-0">{{ estadisticas.reservas_confirmadas }}</h4>
+                            <p class="mb-0">Confirmadas</p>
+                        </div>
+                        <i class="bi bi-check-circle display-6"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card bg-info text-white shadow-sm h-100">
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="mb-0">{{ estadisticas.reservas_completadas }}</h4>
+                            <p class="mb-0">Completadas</p>
+                        </div>
+                        <i class="bi bi-trophy display-6"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card bg-danger text-white shadow-sm h-100">
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="mb-0">{{ estadisticas.reservas_canceladas }}</h4>
+                            <p class="mb-0">Canceladas</p>
+                        </div>
+                        <i class="bi bi-x-circle display-6"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card bg-warning text-dark shadow-sm h-100">
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="mb-0">{{ estadisticas.reservas_no_show }}</h4>
+                            <p class="mb-0">No Show</p>
+                        </div>
+                        <i class="bi bi-person-slash display-6"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-3">
+            <div class="card bg-dark text-white shadow-sm h-100">
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="mb-0">Bs. {{ ingresos_total|floatformat:2 }}</h4>
+                            <p class="mb-0">Ingresos Totales</p>
+                        </div>
+                        <i class="bi bi-currency-dollar display-6"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Canchas Más Utilizadas -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="bi bi-bar-chart-steps me-2"></i>
+                        Canchas Más Utilizadas ({{ fecha_desde|date:"d/m/Y" }} - {{ fecha_hasta|date:"d/m/Y" }})
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    {% if canchas_stats %}
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover mb-0">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Cancha</th>
+                                        <th>Tipo de Pista</th>
+                                        <th>Total Reservas</th>
+                                        <th>Ingresos Generados</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for cancha in canchas_stats %}
+                                        <tr>
+                                            <td>{{ cancha.nombre }}</td>
+                                            <td>{{ cancha.get_tipo_pista_display }}</td>
+                                            <td>
+                                                <span class="badge bg-primary">{{ cancha.total_reservas }}</span>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-success">Bs. {{ cancha.ingresos|floatformat:2 }}</span>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="bi bi-bar-chart-fill display-1 text-muted"></i>
+                            <h4 class="mt-3">No hay datos de reservas para el período seleccionado.</h4>
+                            <p class="text-muted">Intenta ajustar el rango de fechas.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .card-header {
+        border-bottom: 0;
+        border-top-left-radius: 0.5rem;
+        border-top-right-radius: 0.5rem;
+    }
+    .card {
+        border-radius: 0.5rem;
+    }
+    .table-responsive {
+        border-radius: 0.5rem; /* Apply border-radius to the responsive table container */
+        overflow: hidden; /* Hide overflow to respect border-radius */
+    }
+    .table thead th {
+        vertical-align: middle;
+    }
+    .table tbody td {
+        vertical-align: middle;
+    }
+    .stat-box {
+        padding: 10px;
+    }
+    .stat-box h4 {
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+</style>
+{% endblock %}
+
+{# No se requiere JavaScript adicional para este template, la lógica de filtro se maneja por el GET request #}
+{# {% block extra_js %}{% endblock %} #}

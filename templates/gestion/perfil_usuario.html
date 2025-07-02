@@ -1,0 +1,229 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Mi Perfil - Padel Paraguaná{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-10 col-lg-8">
+            <!-- Header de la página -->
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4 border-bottom">
+                <h1 class="h2">
+                    <i class="bi bi-person-circle me-2"></i>
+                    Mi Perfil
+                </h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-1"></i>
+                        Volver al Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mensajes de Django -->
+    {% if messages %}
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-10 col-lg-8">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-10 col-lg-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-person-badge me-2"></i>
+                        Información Personal
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 text-center mb-3 mb-md-0">
+                            <div class="avatar-circle bg-secondary text-white d-flex align-items-center justify-content-center mx-auto mb-3">
+                                {{ request.user.first_name|first|default:request.user.username|first|upper }}{{ request.user.last_name|first|upper }}
+                            </div>
+                            <h5>{{ request.user.get_full_name|default:request.user.username }}</h5>
+                            <p class="text-muted">@{{ request.user.username }}</p>
+                            {% if request.user.rol == 'administrador' %}
+                                <span class="badge bg-danger"><i class="bi bi-shield-check me-1"></i> Administrador</span>
+                            {% else %}
+                                <span class="badge bg-primary"><i class="bi bi-person me-1"></i> Jugador</span>
+                            {% endif %}
+                            {% if request.user.nivel_habilidad %}
+                                <span class="badge bg-info ms-2"><i class="bi bi-trophy me-1"></i> {{ request.user.get_nivel_habilidad_display }}</span>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-8">
+                            <form method="post">
+                                {% csrf_token %}
+
+                                {% if form.non_field_errors %}
+                                    <div class="alert alert-danger mb-3" role="alert">
+                                        {% for error in form.non_field_errors %}
+                                            <p class="mb-0">{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ form.first_name.id_for_label }}" class="form-label">{{ form.first_name.label }}</label>
+                                        {{ form.first_name }}
+                                        {% for error in form.first_name.errors %}
+                                            <div class="invalid-feedback d-block">{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ form.last_name.id_for_label }}" class="form-label">{{ form.last_name.label }}</label>
+                                        {{ form.last_name }}
+                                        {% for error in form.last_name.errors %}
+                                            <div class="invalid-feedback d-block">{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="{{ form.email.id_for_label }}" class="form-label">{{ form.email.label }}</label>
+                                    {{ form.email }}
+                                    {% for error in form.email.errors %}
+                                        <div class="invalid-feedback d-block">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="{{ form.telefono.id_for_label }}" class="form-label">{{ form.telefono.label }}</label>
+                                    {{ form.telefono }}
+                                    {% for error in form.telefono.errors %}
+                                        <div class="invalid-feedback d-block">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="{{ form.nivel_habilidad.id_for_label }}" class="form-label">{{ form.nivel_habilidad.label }}</label>
+                                    {{ form.nivel_habilidad }}
+                                    {% for error in form.nivel_habilidad.errors %}
+                                        <div class="invalid-feedback d-block">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+
+                                <div class="d-grid gap-2 mt-4">
+                                    <button type="submit" class="btn btn-success btn-lg">
+                                        <i class="bi bi-save me-2"></i>
+                                        Actualizar Perfil
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sección de Estadísticas de Reservas -->
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-10 col-lg-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-bar-chart-line me-2"></i>
+                        Estadísticas de Reservas
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-4 mb-3 mb-md-0">
+                            <div class="stat-box">
+                                <h4 class="text-primary">{{ total_reservas }}</h4>
+                                <small class="text-muted">Total de Reservas</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3 mb-md-0">
+                            <div class="stat-box">
+                                <h4 class="text-success">{{ reservas_activas }}</h4>
+                                <small class="text-muted">Reservas Activas</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="stat-box">
+                                <h4 class="text-secondary">{{ reservas_completadas }}</h4>
+                                <small class="text-muted">Reservas Completadas</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Información adicional (opcional) -->
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-10 col-lg-8">
+            <div class="card shadow-sm bg-light">
+                <div class="card-body">
+                    <h6 class="card-title text-muted">
+                        <i class="bi bi-info-circle me-2"></i>
+                        Último acceso: {{ request.user.last_login|date:"d/m/Y H:i" }}
+                    </h6>
+                    <p class="card-text text-muted small mb-0">
+                        Miembro desde: {{ request.user.fecha_registro|date:"d/m/Y" }} ({{ request.user.fecha_registro|timesince }} atrás)
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .avatar-circle {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        font-weight: bold;
+        font-size: 36px;
+        line-height: 100px; /* Centrar verticalmente */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden; /* Asegura que las iniciales no se salgan */
+        border: 3px solid var(--bs-primary); /* Borde para el avatar */
+    }
+    .card-header {
+        border-bottom: 0;
+        border-top-left-radius: 0.5rem;
+        border-top-right-radius: 0.5rem;
+    }
+    .card {
+        border-radius: 0.5rem;
+    }
+    .invalid-feedback.d-block {
+        font-size: 0.875em; /* Tamaño de fuente para errores */
+    }
+    .stat-box {
+        padding: 15px;
+        border-radius: 0.5rem;
+        background-color: #f8f9fa; /* Un fondo ligeramente diferente para las cajas de estadísticas */
+        border: 1px solid #e9ecef;
+    }
+    .stat-box h4 {
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+</style>
+{% endblock %}
+
+{# No se requiere JavaScript adicional para este formulario básico #}
+{# {% block extra_js %}{% endblock %} #}

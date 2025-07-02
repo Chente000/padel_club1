@@ -1,0 +1,225 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Mis Reservas - Padel Paraguaná{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-5">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header de la página -->
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4 border-bottom">
+                <h1 class="h2">
+                    <i class="bi bi-calendar-check me-2"></i>
+                    Mis Reservas
+                </h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <a href="{% url 'crear_reserva' %}" class="btn btn-primary me-2">
+                        <i class="bi bi-plus-circle me-1"></i>
+                        Nueva Reserva
+                    </a>
+                    <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-1"></i>
+                        Volver al Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mensajes de Django -->
+    {% if messages %}
+        <div class="row justify-content-center">
+            <div class="col-md-10">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Estadísticas rápidas -->
+    <div class="row mb-4 justify-content-center">
+        <div class="col-md-4">
+            <div class="card bg-info text-white shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="mb-0">{{ total_reservas }}</h4>
+                            <p class="mb-0">Total de Reservas</p>
+                        </div>
+                        <i class="bi bi-calendar-event display-6"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {# Puedes añadir más estadísticas aquí si tu vista las proporciona, por ejemplo: #}
+        {# <div class="col-md-4"> #}
+        {#     <div class="card bg-success text-white shadow-sm"> #}
+        {#         <div class="card-body"> #}
+        {#             <div class="d-flex justify-content-between align-items-center"> #}
+        {#                 <div> #}
+        {#                     <h4 class="mb-0">{{ reservas.filter(estado='confirmada').count }}</h4> #}
+        {#                     <p class="mb-0">Reservas Confirmadas</p> #}
+        {#                 </div> #}
+        {#                 <i class="bi bi-check-circle display-6"></i> #}
+        {#             </div> #}
+        {#         </div> #}
+        {#     </div> #}
+        {# </div> #}
+    </div>
+
+    <!-- Lista de Reservas -->
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="bi bi-list-ul me-2"></i>
+                        Detalle de Reservas
+                        <span class="badge bg-secondary ms-2">{{ reservas.paginator.count }}</span>
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    {% if reservas %}
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover mb-0">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Cancha</th>
+                                        <th>Fecha</th>
+                                        <th>Hora</th>
+                                        <th>Estado</th>
+                                        <th>Precio</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for reserva in reservas %}
+                                        <tr>
+                                            <td>
+                                                <strong>{{ reserva.cancha.nombre }}</strong>
+                                                <br>
+                                                <small class="text-muted">{{ reserva.cancha.get_tipo_pista_display }}</small>
+                                            </td>
+                                            <td>{{ reserva.fecha_reserva|date:"d/m/Y" }}</td>
+                                            <td>{{ reserva.hora_inicio|time:"H:i" }} - {{ reserva.hora_fin|time:"H:i" }}</td>
+                                            <td>
+                                                {% if reserva.estado == 'confirmada' %}
+                                                    <span class="badge bg-success">Confirmada</span>
+                                                {% elif reserva.estado == 'cancelada' %}
+                                                    <span class="badge bg-danger">Cancelada</span>
+                                                {% elif reserva.estado == 'completada' %}
+                                                    <span class="badge bg-info">Completada</span>
+                                                {% elif reserva.estado == 'no_show' %}
+                                                    <span class="badge bg-warning text-dark">No Show</span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">{{ reserva.estado }}</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>Bs. {{ reserva.precio_total|floatformat:2 }}</td>
+                                            <td>
+                                                {% if reserva.puede_cancelar %}
+                                                    <form action="{% url 'cancelar_reserva' reserva.id %}" method="post" class="d-inline">
+                                                        {% csrf_token %}
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger" 
+                                                                onclick="return confirm('¿Estás seguro de que deseas cancelar esta reserva para {{ reserva.cancha.nombre }} el {{ reserva.fecha_reserva|date:'d/m/Y' }} a las {{ reserva.hora_inicio|time:'H:i' }}? Esta acción no se puede deshacer.');"
+                                                                title="Cancelar Reserva">
+                                                            <i class="bi bi-x-circle"></i> Cancelar
+                                                        </button>
+                                                    </form>
+                                                {% else %}
+                                                    <span class="text-muted small">No cancelable</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Paginación -->
+                        {% if reservas.has_other_pages %}
+                            <nav aria-label="Paginación de reservas" class="mt-4">
+                                <ul class="pagination justify-content-center">
+                                    {% if reservas.has_previous %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page=1" aria-label="Primera">
+                                                <span aria-hidden="true">&laquo;&laquo;</span>
+                                            </a>
+                                        </li>
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ reservas.previous_page_number }}" aria-label="Anterior">
+                                                <span aria-hidden="true">&laquo;</span>
+                                            </a>
+                                        </li>
+                                    {% endif %}
+
+                                    <li class="page-item active" aria-current="page">
+                                        <span class="page-link">
+                                            Página {{ reservas.number }} de {{ reservas.paginator.num_pages }}
+                                        </span>
+                                    </li>
+
+                                    {% if reservas.has_next %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ reservas.next_page_number }}" aria-label="Siguiente">
+                                                <span aria-hidden="true">&raquo;</span>
+                                            </a>
+                                        </li>
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ reservas.paginator.num_pages }}" aria-label="Última">
+                                                <span aria-hidden="true">&raquo;&raquo;</span>
+                                            </a>
+                                        </li>
+                                    {% endif %}
+                                </ul>
+                            </nav>
+                        {% endif %}
+
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="bi bi-calendar-x display-1 text-muted"></i>
+                            <h4 class="mt-3">No tienes reservas registradas</h4>
+                            <p class="text-muted">¡Es hora de reservar tu primera cancha!</p>
+                            <a href="{% url 'crear_reserva' %}" class="btn btn-primary">
+                                <i class="bi bi-plus-circle me-2"></i>
+                                Crear Reserva Ahora
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .card-header {
+        border-bottom: 0;
+        border-top-left-radius: 0.5rem;
+        border-top-right-radius: 0.5rem;
+    }
+    .card {
+        border-radius: 0.5rem;
+    }
+    .table-responsive {
+        border-radius: 0.5rem; /* Apply border-radius to the responsive table container */
+        overflow: hidden; /* Hide overflow to respect border-radius */
+    }
+    .table thead th {
+        vertical-align: middle;
+    }
+    .table tbody td {
+        vertical-align: middle;
+    }
+</style>
+{% endblock %}
+
+{# No se requiere JavaScript adicional para este template básico, la confirmación se hace con JS nativo #}
+{# {% block extra_js %}{% endblock %} #}
