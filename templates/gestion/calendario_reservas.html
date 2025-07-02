@@ -1,0 +1,380 @@
+{% extends 'base.html' %}
+{% block title %}Calendario de Reservas - Padel Paraguaná{% endblock %}
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header -->
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">
+                    <i class="bi bi-calendar"></i>
+                    Calendario de Reservas
+                </h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <div class="btn-group me-2">
+                        <a href="{% url 'crear_reserva' %}" class="btn btn-primary">
+                            <i class="bi bi-plus-circle"></i>
+                            Nueva Reserva
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Navegación de fechas -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="?fecha={{ fecha_anterior|date:'Y-m-d' }}" class="btn btn-outline-primary">
+                            <i class="bi bi-chevron-left"></i>
+                            Día Anterior
+                        </a>
+                        
+                        <div class="text-center">
+                            <h4 class="mb-0">{{ fecha_seleccionada|date:"l, d \d\e F \d\e Y" }}</h4>
+                            <form method="get" class="d-inline">
+                                <input type="date" name="fecha" value="{{ fecha_seleccionada|date:'Y-m-d' }}" 
+                                       class="form-control d-inline-block w-auto" onchange="this.form.submit()">
+                            </form>
+                        </div>
+                        
+                        <a href="?fecha={{ fecha_siguiente|date:'Y-m-d' }}" class="btn btn-outline-primary">
+                            Día Siguiente
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Leyenda -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="d-flex justify-content-center flex-wrap gap-3">
+                <div class="d-flex align-items-center">
+                    <div class="calendar-cell disponible me-2" style="width: 20px; height: 20px; border: 1px solid #dee2e6;"></div>
+                    <span>Disponible</span>
+                </div>
+                <div class="d-flex align-items-center">
+                    <div class="calendar-cell ocupado me-2" style="width: 20px; height: 20px; border: 1px solid #dee2e6;"></div>
+                    <span>Ocupado</span>
+                </div>
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-person-circle text-primary me-2"></i>
+                    <span>Tu reserva</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Calendario de disponibilidad -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-sm mb-0">
+                            <thead class="bg-primary text-white">
+                                <tr>
+                                    <th style="min-width: 120px;">Cancha</th>
+                                    {% for horario in horarios %}
+                                        <th class="text-center" style="min-width: 80px;">
+                                            {{ horario|time:"H:i" }}
+                                        </th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for cancha_data in calendario_data %}
+                                    <tr>
+                                        <td class="bg-light fw-bold align-middle">
+                                            <div>
+                                                <strong>{{ cancha_data.cancha.nombre }}</strong>
+                                                <br>
+                                                <small class="text-muted">
+                                                    {{ cancha_data.cancha.get_tipo_pista_display }}
+                                                    <br>
+                                                    Bs. {{ cancha_data.cancha.tarifa_hora }}/h
+                                                </small>
+                                            </div>
+                                        </td>
+                                        {% for horario_data in cancha_data.horarios %}
+                                            <td class="p-1 text-center calendar-cell
+                                                {% if horario_data.disponible %}disponible{% else %}ocupado{% endif %}"
+                                                data-cancha-id="{{ cancha_data.cancha.id }}"
+                                                data-fecha="{{ fecha_seleccionada|date:'Y-m-d' }}"
+                                                data-hora="{{ horario_data.hora|time:'H:i' }}">
+                                                
+                                                {% if horario_data.disponible %}
+                                                    <button class="btn btn-sm btn-success w-100 reserva-rapida"
+                                                            data-cancha-id="{{ cancha_data.cancha.id }}"
+                                                            data-cancha-nombre="{{ cancha_data.cancha.nombre }}"
+                                                            data-fecha="{{ fecha_seleccionada|date:'Y-m-d' }}"
+                                                            data-hora="{{ horario_data.hora|time:'H:i' }}"
+                                                            data-precio="{{ cancha_data.cancha.tarifa_hora }}">
+                                                        <i class="bi bi-plus"></i>
+                                                        Reservar
+                                                    </button>
+                                                {% else %}
+                                                    <div class="text-center">
+                                                        {% if horario_data.reserva.jugador == user %}
+                                                            <i class="bi bi-person-circle text-primary fs-4" title="Tu reserva"></i>
+                                                            <br>
+                                                            <small class="text-primary fw-bold">Tu reserva</small>
+                                                            <br>
+                                                            <button class="btn btn-sm btn-outline-danger mt-1"
+                                                                    onclick="cancelarReserva({{ horario_data.reserva.id }})">
+                                                                <i class="bi bi-x"></i>
+                                                            </button>
+                                                        {% else %}
+                                                            <i class="bi bi-person-fill text-muted fs-4"></i>
+                                                            <br>
+                                                            <small class="text-muted">Ocupado</small>
+                                                            {% if user.es_administrador %}
+                                                                <br>
+                                                                <small class="text-muted">
+                                                                    {{ horario_data.reserva.jugador.get_full_name|default:horario_data.reserva.jugador.username }}
+                                                                </small>
+                                                            {% endif %}
+                                                        {% endif %}
+                                                    </div>
+                                                {% endif %}
+                                            </td>
+                                        {% endfor %}
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Información adicional -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card bg-light">
+                <div class="card-body">
+                    <h6 class="card-title">
+                        <i class="bi bi-info-circle"></i>
+                        Información
+                    </h6>
+                    <ul class="list-unstyled mb-0 small">
+                        <li><i class="bi bi-clock"></i> Cada reserva tiene duración de 1 hora</li>
+                        <li><i class="bi bi-calendar-check"></i> Puedes reservar hasta 30 días de anticipación</li>
+                        <li><i class="bi bi-x-circle"></i> Cancelaciones permitidas hasta 2 horas antes</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card bg-light">
+                <div class="card-body">
+                    <h6 class="card-title">
+                        <i class="bi bi-question-circle"></i>
+                        ¿Necesitas ayuda?
+                    </h6>
+                    <p class="card-text small mb-2">
+                        Haz clic en los botones verdes para hacer una reserva rápida.
+                        Si tienes dudas, contacta al administrador.
+                    </p>
+                    <a href="{% url 'crear_reserva' %}" class="btn btn-sm btn-primary">
+                        <i class="bi bi-plus-circle"></i>
+                        Reserva Detallada
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal de confirmación de reserva rápida -->
+<div class="modal fade" id="modalReservaRapida" tabindex="-1" aria-labelledby="modalReservaRapidaLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalReservaRapidaLabel">
+                    <i class="bi bi-lightning-fill"></i>
+                    Confirmación de Reserva Rápida
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="contenidoConfirmacion">
+                    <!-- Se llena dinámicamente -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x"></i>
+                    Cancelar
+                </button>
+                <button type="button" class="btn btn-primary" id="confirmarReserva">
+                    <i class="bi bi-check-circle"></i>
+                    Confirmar Reserva
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Datos para la reserva rápida
+    let datosReserva = {};
+    
+    // Modal de reserva rápida
+    const modal = new bootstrap.Modal(document.getElementById('modalReservaRapida'));
+    const contenidoConfirmacion = document.getElementById('contenidoConfirmacion');
+    const btnConfirmar = document.getElementById('confirmarReserva');
+    
+    // Manejar clics en botones de reserva rápida
+    document.querySelectorAll('.reserva-rapida').forEach(button => {
+        button.addEventListener('click', function() {
+            datosReserva = {
+                cancha_id: this.dataset.canchaId,
+                cancha_nombre: this.dataset.canchaNombre,
+                fecha: this.dataset.fecha,
+                hora: this.dataset.hora,
+                precio: this.dataset.precio
+            };
+            
+            // Crear contenido del modal
+            contenidoConfirmacion.innerHTML = `
+                <div class="text-center">
+                    <i class="bi bi-building display-4 text-primary mb-3"></i>
+                    <h5>Confirmar Reserva</h5>
+                    <div class="table-responsive">
+                        <table class="table table-borderless">
+                            <tr>
+                                <td><strong>Cancha:</strong></td>
+                                <td>${datosReserva.cancha_nombre}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Fecha:</strong></td>
+                                <td>${formatearFecha(datosReserva.fecha)}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Hora:</strong></td>
+                                <td>${datosReserva.hora} - ${calcularHoraFin(datosReserva.hora)}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Precio:</strong></td>
+                                <td>Bs. ${datosReserva.precio}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            `;
+            
+            modal.show();
+        });
+    });
+    
+    // Confirmar reserva
+    btnConfirmar.addEventListener('click', function() {
+        this.disabled = true;
+        this.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Procesando...';
+        
+        // Crear FormData para envío
+        const formData = new FormData();
+        formData.append('cancha_id', datosReserva.cancha_id);
+        formData.append('fecha', datosReserva.fecha);
+        formData.append('hora', datosReserva.hora);
+        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+        
+        fetch('{% url "reserva_rapida" %}', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                modal.hide();
+                // Mostrar mensaje de éxito
+                mostrarMensaje('success', 'Reserva creada exitosamente');
+                // Recargar la página para actualizar el calendario
+                setTimeout(() => {
+                    location.reload();
+                }, 1500);
+            } else {
+                mostrarMensaje('danger', data.error || 'Error al crear la reserva');
+                this.disabled = false;
+                this.innerHTML = '<i class="bi bi-check-circle"></i> Confirmar Reserva';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            mostrarMensaje('danger', 'Error de conexión');
+            this.disabled = false;
+            this.innerHTML = '<i class="bi bi-check-circle"></i> Confirmar Reserva';
+        });
+    });
+    
+    // Funciones auxiliares
+    function formatearFecha(fecha) {
+        const date = new Date(fecha + 'T00:00:00');
+        return date.toLocaleDateString('es-ES', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    }
+    
+    function calcularHoraFin(horaInicio) {
+        const [horas, minutos] = horaInicio.split(':');
+        const fecha = new Date();
+        fecha.setHours(parseInt(horas) + 1, parseInt(minutos));
+        return fecha.toTimeString().slice(0, 5);
+    }
+    
+    function mostrarMensaje(tipo, mensaje) {
+        const alertas = document.querySelector('.container-fluid .row .col-12');
+        const alerta = document.createElement('div');
+        alerta.className = `alert alert-${tipo} alert-dismissible fade show`;
+        alerta.innerHTML = `
+            <i class="bi bi-${tipo === 'success' ? 'check-circle' : 'exclamation-triangle'}"></i>
+            ${mensaje}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        alertas.insertBefore(alerta, alertas.firstChild);
+        
+        // Auto-ocultar después de 5 segundos
+        setTimeout(() => {
+            alerta.remove();
+        }, 5000);
+    }
+});
+// Función para cancelar reserva (llamada desde el template)
+function cancelarReserva(reservaId) {
+    if (confirm('¿Estás seguro de que deseas cancelar esta reserva?')) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `{% url 'cancelar_reserva' 0 %}`.replace('0', reservaId);
+        
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'csrfmiddlewaretoken';
+        csrfInput.value = '{{ csrf_token }}';
+        
+        form.appendChild(csrfInput);
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+// Auto-refresh cada 5 minutos para mantener actualizado el calendario
+setInterval(function() {
+    if (!document.hidden) {
+        location.reload();
+    }
+}, 300000); // 5 minutos
+</script>
+{% endblock %}

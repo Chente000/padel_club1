@@ -1,0 +1,316 @@
+{% extends 'base.html' %}
+{% block title %}Gestionar Canchas - Padel Paraguaná{% endblock %}
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header -->
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">
+                    <i class="bi bi-building"></i>
+                    Gestionar Canchas
+                </h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <div class="btn-group me-2">
+                        <a href="{% url 'crear_cancha' %}" class="btn btn-primary">
+                            <i class="bi bi-plus-circle"></i>
+                            Nueva Cancha
+                        </a>
+                        <a href="{% url 'dashboard_admin' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left"></i>
+                            Volver al Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Estadísticas rápidas -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0">{{ total_canchas }}</h4>
+                            <p class="mb-0">Total Canchas</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="bi bi-building display-6"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0">{{ canchas.object_list|length }}</h4>
+                            <p class="mb-0">En Esta Página</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="bi bi-list display-6"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0">
+                                {% for cancha in canchas %}
+                                    {% if cancha.activa %}{{ forloop.counter }}{% endif %}
+                                {% endfor %}
+                            </h4>
+                            <p class="mb-0">Activas</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="bi bi-check-circle display-6"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0">
+                                {% for cancha in canchas %}
+                                    {% if not cancha.activa %}{{ forloop.counter }}{% endif %}
+                                {% endfor %}
+                            </h4>
+                            <p class="mb-0">Inactivas</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="bi bi-x-circle display-6"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Lista de canchas -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-list-ul"></i>
+                        Lista de Canchas
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if canchas %}
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Nombre</th>
+                                        <th>Tipo de Pista</th>
+                                        <th>Tarifa/Hora</th>
+                                        <th>Capacidad</th>
+                                        <th>Estado</th>
+                                        <th>Fecha Creación</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for cancha in canchas %}
+                                        <tr>
+                                            <td>{{ cancha.id }}</td>
+                                            <td>
+                                                <strong>{{ cancha.nombre }}</strong>
+                                                {% if cancha.descripcion %}
+                                                    <br>
+                                                    <small class="text-muted">{{ cancha.descripcion|truncatechars:50 }}</small>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-secondary">
+                                                    {{ cancha.get_tipo_pista_display }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <strong>Bs. {{ cancha.tarifa_hora|floatformat:2 }}</strong>
+                                            </td>
+                                            <td>
+                                                <i class="bi bi-people"></i>
+                                                {{ cancha.capacidad_jugadores }} jugadores
+                                            </td>
+                                            <td>
+                                                {% if cancha.activa %}
+                                                    <span class="badge bg-success">
+                                                        <i class="bi bi-check-circle"></i>
+                                                        Activa
+                                                    </span>
+                                                {% else %}
+                                                    <span class="badge bg-danger">
+                                                        <i class="bi bi-x-circle"></i>
+                                                        Inactiva
+                                                    </span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <small>{{ cancha.fecha_creacion|date:"d/m/Y H:i" }}</small>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <a href="{% url 'editar_cancha' cancha.id %}" 
+                                                       class="btn btn-sm btn-outline-primary" 
+                                                       title="Editar">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </a>
+                                                    
+                                                    {% if cancha.activa %}
+                                                        <a href="{% url 'eliminar_cancha' cancha.id %}" 
+                                                           class="btn btn-sm btn-outline-warning" 
+                                                           title="Desactivar">
+                                                            <i class="bi bi-pause-circle"></i>
+                                                        </a>
+                                                    {% endif %}
+                                                    
+                                                    <a href="{% url 'calendario_reservas' %}?cancha={{ cancha.id }}" 
+                                                       class="btn btn-sm btn-outline-info" 
+                                                       title="Ver Reservas">
+                                                        <i class="bi bi-calendar-event"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Paginación -->
+                        {% if canchas.has_other_pages %}
+                            <nav aria-label="Paginación de canchas">
+                                <ul class="pagination justify-content-center">
+                                    {% if canchas.has_previous %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page=1">
+                                                <i class="bi bi-chevron-double-left"></i>
+                                                Primera
+                                            </a>
+                                        </li>
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ canchas.previous_page_number }}">
+                                                <i class="bi bi-chevron-left"></i>
+                                                Anterior
+                                            </a>
+                                        </li>
+                                    {% endif %}
+                                    
+                                    <li class="page-item active">
+                                        <span class="page-link">
+                                            Página {{ canchas.number }} de {{ canchas.paginator.num_pages }}
+                                        </span>
+                                    </li>
+                                    
+                                    {% if canchas.has_next %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ canchas.next_page_number }}">
+                                                Siguiente
+                                                <i class="bi bi-chevron-right"></i>
+                                            </a>
+                                        </li>
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ canchas.paginator.num_pages }}">
+                                                Última
+                                                <i class="bi bi-chevron-double-right"></i>
+                                            </a>
+                                        </li>
+                                    {% endif %}
+                                </ul>
+                            </nav>
+                        {% endif %}
+                        
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="bi bi-building-x display-1 text-muted"></i>
+                            <h4 class="mt-3">No hay canchas registradas</h4>
+                            <p class="text-muted">Comienza creando tu primera cancha</p>
+                            <a href="{% url 'crear_cancha' %}" class="btn btn-primary">
+                                <i class="bi bi-plus-circle"></i>
+                                Crear Primera Cancha
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Información adicional -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card bg-light">
+                <div class="card-body">
+                    <h6 class="card-title">
+                        <i class="bi bi-info-circle"></i>
+                        Gestión de Canchas
+                    </h6>
+                    <ul class="list-unstyled mb-0 small">
+                        <li><i class="bi bi-check"></i> Crea, edita y gestiona todas las canchas</li>
+                        <li><i class="bi bi-check"></i> Configura tarifas y tipos de pista</li>
+                        <li><i class="bi bi-check"></i> Activa o desactiva canchas según necesidad</li>
+                        <li><i class="bi bi-check"></i> Ve las reservas de cada cancha</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card bg-light">
+                <div class="card-body">
+                    <h6 class="card-title">
+                        <i class="bi bi-lightbulb"></i>
+                        Consejos
+                    </h6>
+                    <ul class="list-unstyled mb-0 small">
+                        <li><i class="bi bi-arrow-right"></i> Las canchas inactivas no aparecen en reservas</li>
+                        <li><i class="bi bi-arrow-right"></i> Ajusta tarifas según demanda y horarios</li>
+                        <li><i class="bi bi-arrow-right"></i> Mantén descripciones claras y útiles</li>
+                        <li><i class="bi bi-arrow-right"></i> Revisa regularmente el estado de las canchas</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Confirmación antes de desactivar canchas
+    document.querySelectorAll('a[href*="eliminar_cancha"]').forEach(function(link) {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            if (confirm('¿Estás seguro de que deseas desactivar esta cancha?\n\nLas reservas existentes no se verán afectadas, pero no se podrán hacer nuevas reservas.')) {
+                window.location.href = this.href;
+            }
+        });
+    });
+    
+    // Tooltip para botones de acción
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,250 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard - Padel Paraguaná{% endblock %}
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header del Dashboard -->
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">
+                    <i class="bi bi-speedometer2"></i>
+                    Mi Dashboard
+                </h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <div class="btn-group me-2">
+                        <a href="{% url 'crear_reserva' %}" class="btn btn-primary">
+                            <i class="bi bi-plus-circle"></i>
+                            Nueva Reserva
+                        </a>
+                        <a href="{% url 'calendario_reservas' %}" class="btn btn-outline-primary">
+                            <i class="bi bi-calendar"></i>
+                            Ver Calendario
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Estadísticas rápidas -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0">{{ total_reservas }}</h4>
+                            <p class="mb-0">Total Reservas</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="bi bi-calendar-event display-6"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0">{{ reservas_completadas }}</h4>
+                            <p class="mb-0">Completadas</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="bi bi-check-circle display-6"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-warning text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0">{{ reservas_proximas.count }}</h4>
+                            <p class="mb-0">Próximas</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="bi bi-clock display-6"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-danger text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0">{{ reservas_canceladas }}</h4>
+                            <p class="mb-0">Canceladas</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="bi bi-x-circle display-6"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Reservas próximas -->
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="bi bi-calendar-check"></i>
+                        Mis Próximas Reservas
+                    </h5>
+                    <a href="{% url 'mis_reservas' %}" class="btn btn-sm btn-outline-primary">
+                        Ver todas
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if reservas_proximas %}
+                        <div class="list-group list-group-flush">
+                            {% for reserva in reservas_proximas %}
+                                <div class="list-group-item d-flex justify-content-between align-items-start">
+                                    <div class="ms-2 me-auto">
+                                        <div class="fw-bold">{{ reserva.cancha.nombre }}</div>
+                                        <small class="text-muted">
+                                            <i class="bi bi-calendar"></i>
+                                            {{ reserva.fecha_reserva|date:"d/m/Y" }}
+                                            <i class="bi bi-clock ms-2"></i>
+                                            {{ reserva.hora_inicio|time:"H:i" }} - {{ reserva.hora_fin|time:"H:i" }}
+                                        </small>
+                                    </div>
+                                    <span class="badge bg-primary rounded-pill">
+                                        Bs. {{ reserva.precio_total }}
+                                    </span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-calendar-x display-4 text-muted"></i>
+                            <p class="text-muted mt-2 mb-3">No tienes reservas próximas</p>
+                            <a href="{% url 'crear_reserva' %}" class="btn btn-primary">
+                                <i class="bi bi-plus-circle"></i>
+                                Hacer una reserva
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Canchas disponibles hoy -->
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="bi bi-building"></i>
+                        Canchas Disponibles Hoy
+                    </h5>
+                    <a href="{% url 'buscar_canchas' %}" class="btn btn-sm btn-outline-primary">
+                        Buscar más
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if canchas_disponibles %}
+                        <div class="list-group list-group-flush">
+                            {% for item in canchas_disponibles %}
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <div class="fw-bold">{{ item.cancha.nombre }}</div>
+                                        <small class="text-muted">
+                                            {{ item.cancha.get_tipo_pista_display }} - 
+                                            Bs. {{ item.cancha.tarifa_hora }}/hora
+                                        </small>
+                                    </div>
+                                    <div class="text-end">
+                                        <span class="badge bg-success">
+                                            {{ item.horarios_count }} horarios
+                                        </span>
+                                        <br>
+                                        <a href="{% url 'calendario_reservas' %}" class="btn btn-sm btn-outline-primary mt-1">
+                                            Ver
+                                        </a>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-building-x display-4 text-muted"></i>
+                            <p class="text-muted mt-2 mb-3">No hay canchas disponibles hoy</p>
+                            <a href="{% url 'buscar_canchas' %}" class="btn btn-primary">
+                                <i class="bi bi-search"></i>
+                                Buscar para otra fecha
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Accesos rápidos -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-lightning"></i>
+                        Accesos Rápidos
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <a href="{% url 'crear_reserva' %}" class="btn btn-outline-primary w-100 h-100 d-flex flex-column align-items-center justify-content-center py-3">
+                                <i class="bi bi-plus-circle display-6 mb-2"></i>
+                                <span>Nueva Reserva</span>
+                            </a>
+                        </div>
+                        
+                        <div class="col-md-3">
+                            <a href="{% url 'calendario_reservas' %}" class="btn btn-outline-success w-100 h-100 d-flex flex-column align-items-center justify-content-center py-3">
+                                <i class="bi bi-calendar display-6 mb-2"></i>
+                                <span>Ver Calendario</span>
+                            </a>
+                        </div>
+                        
+                        <div class="col-md-3">
+                            <a href="{% url 'mis_reservas' %}" class="btn btn-outline-info w-100 h-100 d-flex flex-column align-items-center justify-content-center py-3">
+                                <i class="bi bi-list-ul display-6 mb-2"></i>
+                                <span>Mis Reservas</span>
+                            </a>
+                        </div>
+                        
+                        <div class="col-md-3">
+                            <a href="{% url 'perfil_usuario' %}" class="btn btn-outline-warning w-100 h-100 d-flex flex-column align-items-center justify-content-center py-3">
+                                <i class="bi bi-person-gear display-6 mb-2"></i>
+                                <span>Mi Perfil</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Actualizar datos cada 5 minutos
+    setInterval(function() {
+        // Recargar solo la sección de canchas disponibles
+        location.reload();
+    }, 300000); // 5 minutos
+});
+</script>
+{% endblock %}

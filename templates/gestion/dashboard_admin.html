@@ -1,0 +1,361 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard Administrativo - Padel Paraguaná{% endblock %}
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header del Dashboard -->
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">
+                    <i class="bi bi-gear-fill"></i>
+                    Panel Administrativo
+                </h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <div class="btn-group me-2">
+                        <a href="{% url 'crear_cancha' %}" class="btn btn-primary">
+                            <i class="bi bi-building-add"></i>
+                            Nueva Cancha
+                        </a>
+                        <a href="{% url 'reportes_admin' %}" class="btn btn-outline-primary">
+                            <i class="bi bi-graph-up"></i>
+                            Reportes
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Estadísticas generales -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0">{{ total_usuarios }}</h4>
+                            <p class="mb-0">Total Usuarios</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="bi bi-people display-6"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0">{{ total_jugadores }}</h4>
+                            <p class="mb-0">Jugadores Activos</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="bi bi-person-check display-6"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-info text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0">{{ total_canchas }}</h4>
+                            <p class="mb-0">Canchas Activas</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="bi bi-building display-6"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-warning text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0">{{ reservas_confirmadas_hoy }}</h4>
+                            <p class="mb-0">Reservas Hoy</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="bi bi-calendar-check display-6"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Segunda fila de estadísticas -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card border-left-success shadow h-100">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Ingresos del Mes
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                Bs. {{ ingresos_mes|floatformat:2 }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-currency-dollar display-6 text-success"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card border-left-info shadow h-100">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Confirmadas (30d)
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ estadisticas_reservas.confirmadas }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-check-circle display-6 text-info"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card border-left-warning shadow h-100">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Canceladas (30d)
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ estadisticas_reservas.canceladas }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-x-circle display-6 text-warning"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card border-left-danger shadow h-100">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                No Show (30d)
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ estadisticas_reservas.no_show }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-person-x display-6 text-danger"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Canchas más populares -->
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="bi bi-trophy"></i>
+                        Canchas Más Reservadas (30 días)
+                    </h5>
+                    <a href="{% url 'admin_canchas' %}" class="btn btn-sm btn-outline-primary">
+                        Gestionar canchas
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if canchas_populares %}
+                        <div class="list-group list-group-flush">
+                            {% for cancha in canchas_populares %}
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <div class="fw-bold">{{ cancha.nombre }}</div>
+                                        <small class="text-muted">
+                                            {{ cancha.get_tipo_pista_display }} - 
+                                            Bs. {{ cancha.tarifa_hora }}/hora
+                                        </small>
+                                    </div>
+                                    <div class="text-end">
+                                        <span class="badge bg-primary rounded-pill">
+                                            {{ cancha.total_reservas }} reservas
+                                        </span>
+                                        <br>
+                                        <small class="text-muted">
+                                            Bs. {{ cancha.ingresos|default:0|floatformat:0 }}
+                                        </small>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-graph-down display-4 text-muted"></i>
+                            <p class="text-muted mt-2">No hay datos de reservas disponibles</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Próximas reservas -->
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="bi bi-calendar-event"></i>
+                        Próximas Reservas (7 días)
+                    </h5>
+                    <a href="{% url 'admin_reservas' %}" class="btn btn-sm btn-outline-primary">
+                        Ver todas
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if reservas_proximas %}
+                        <div class="list-group list-group-flush">
+                            {% for reserva in reservas_proximas %}
+                                <div class="list-group-item">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">{{ reserva.cancha.nombre }}</h6>
+                                        <small>{{ reserva.fecha_reserva|date:"d/m" }}</small>
+                                    </div>
+                                    <p class="mb-1">
+                                        <strong>{{ reserva.jugador.get_full_name|default:reserva.jugador.username }}</strong>
+                                    </p>
+                                    <small class="text-muted">
+                                        <i class="bi bi-clock"></i>
+                                        {{ reserva.hora_inicio|time:"H:i" }} - {{ reserva.hora_fin|time:"H:i" }}
+                                        <span class="ms-2 badge bg-success">
+                                            Bs. {{ reserva.precio_total }}
+                                        </span>
+                                    </small>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-calendar-x display-4 text-muted"></i>
+                            <p class="text-muted mt-2">No hay reservas próximas</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Herramientas de administración -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-tools"></i>
+                        Herramientas de Administración
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <a href="{% url 'admin_canchas' %}" class="btn btn-outline-primary w-100 h-100 d-flex flex-column align-items-center justify-content-center py-3">
+                                <i class="bi bi-building display-6 mb-2"></i>
+                                <span>Gestionar Canchas</span>
+                                <small class="text-muted">{{ total_canchas }} activas</small>
+                            </a>
+                        </div>
+                        
+                        <div class="col-md-3">
+                            <a href="{% url 'admin_reservas' %}" class="btn btn-outline-success w-100 h-100 d-flex flex-column align-items-center justify-content-center py-3">
+                                <i class="bi bi-calendar-event display-6 mb-2"></i>
+                                <span>Gestionar Reservas</span>
+                                <small class="text-muted">{{ reservas_confirmadas_hoy }} hoy</small>
+                            </a>
+                        </div>
+                        
+                        <div class="col-md-3">
+                            <a href="{% url 'admin_usuarios' %}" class="btn btn-outline-info w-100 h-100 d-flex flex-column align-items-center justify-content-center py-3">
+                                <i class="bi bi-people display-6 mb-2"></i>
+                                <span>Gestionar Usuarios</span>
+                                <small class="text-muted">{{ total_jugadores }} jugadores</small>
+                            </a>
+                        </div>
+                        
+                        <div class="col-md-3">
+                            <a href="{% url 'reportes_admin' %}" class="btn btn-outline-warning w-100 h-100 d-flex flex-column align-items-center justify-content-center py-3">
+                                <i class="bi bi-graph-up display-6 mb-2"></i>
+                                <span>Ver Reportes</span>
+                                <small class="text-muted">Estadísticas detalladas</small>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_css %}
+<style>
+.border-left-success {
+    border-left: 0.25rem solid #1cc88a !important;
+}
+.border-left-info {
+    border-left: 0.25rem solid #36b9cc !important;
+}
+.border-left-warning {
+    border-left: 0.25rem solid #f6c23e !important;
+}
+.border-left-danger {
+    border-left: 0.25rem solid #e74a3b !important;
+}
+.text-xs {
+    font-size: 0.7rem;
+}
+.shadow {
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15) !important;
+}
+</style>
+{% endblock %}
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Actualizar estadísticas cada 2 minutos
+    setInterval(function() {
+        // Solo actualizar si la página está visible
+        if (!document.hidden) {
+            location.reload();
+        }
+    }, 120000); // 2 minutos
+    
+    // Mostrar notificaciones de reservas próximas
+    const reservasHoy = {{ reservas_confirmadas_hoy }};
+    if (reservasHoy > 0) {
+        console.log(`Tienes ${reservasHoy} reservas confirmadas para hoy`);
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,318 @@
+{% extends 'base.html' %}
+{% block title %}Confirmar Desactivación - Padel Paraguaná{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card border-warning">
+                <div class="card-header bg-warning text-dark">
+                    <h4 class="mb-0">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        Confirmar Desactivación de Cancha
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <!-- Alerta de advertencia -->
+                    <div class="alert alert-danger border-danger">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-shield-exclamation display-4 me-3"></i>
+                            <div>
+                                <h5 class="alert-heading mb-2">¡Acción Importante!</h5>
+                                <p class="mb-0">
+                                    Estás a punto de desactivar una cancha. Esta acción afectará el sistema de reservas.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Información de la cancha -->
+                    <div class="card bg-light mb-4">
+                        <div class="card-header">
+                            <h6 class="mb-0">
+                                <i class="bi bi-building"></i>
+                                Información de la Cancha
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <table class="table table-borderless table-sm">
+                                        <tr>
+                                            <td><strong>Nombre:</strong></td>
+                                            <td>{{ cancha.nombre }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Tipo:</strong></td>
+                                            <td>{{ cancha.get_tipo_pista_display }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Tarifa:</strong></td>
+                                            <td>Bs. {{ cancha.tarifa_hora|floatformat:2 }}/hora</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="col-sm-6">
+                                    <table class="table table-borderless table-sm">
+                                        <tr>
+                                            <td><strong>Capacidad:</strong></td>
+                                            <td>{{ cancha.capacidad_jugadores }} jugadores</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Estado:</strong></td>
+                                            <td>
+                                                <span class="badge bg-success">
+                                                    <i class="bi bi-check-circle"></i>
+                                                    Activa
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Creada:</strong></td>
+                                            <td>{{ cancha.fecha_creacion|date:"d/m/Y" }}</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                            
+                            {% if cancha.descripcion %}
+                                <div class="mt-2">
+                                    <strong>Descripción:</strong>
+                                    <p class="text-muted mb-0">{{ cancha.descripcion }}</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Información sobre las consecuencias -->
+                    <div class="card border-info mb-4">
+                        <div class="card-header bg-info text-white">
+                            <h6 class="mb-0">
+                                <i class="bi bi-info-circle"></i>
+                                ¿Qué sucede cuando desactivas una cancha?
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6 class="text-success">
+                                        <i class="bi bi-check-circle"></i>
+                                        Lo que NO cambia:
+                                    </h6>
+                                    <ul class="list-unstyled">
+                                        <li><i class="bi bi-arrow-right text-success"></i> Las reservas existentes se mantienen</li>
+                                        <li><i class="bi bi-arrow-right text-success"></i> El historial de reservas se conserva</li>
+                                        <li><i class="bi bi-arrow-right text-success"></i> Los datos de la cancha se guardan</li>
+                                        <li><i class="bi bi-arrow-right text-success"></i> Puedes reactivarla cuando quieras</li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6 class="text-warning">
+                                        <i class="bi bi-exclamation-triangle"></i>
+                                        Lo que SÍ cambia:
+                                    </h6>
+                                    <ul class="list-unstyled">
+                                        <li><i class="bi bi-arrow-right text-warning"></i> No aparecerá en nuevas reservas</li>
+                                        <li><i class="bi bi-arrow-right text-warning"></i> No se podrá seleccionar en búsquedas</li>
+                                        <li><i class="bi bi-arrow-right text-warning"></i> Se oculta del calendario público</li>
+                                        <li><i class="bi bi-arrow-right text-warning"></i> Los jugadores no la verán disponible</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Estadísticas de la cancha -->
+                    <div class="card border-secondary mb-4">
+                        <div class="card-header">
+                            <h6 class="mb-0">
+                                <i class="bi bi-graph-up"></i>
+                                Estadísticas de la Cancha
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row text-center">
+                                <div class="col-3">
+                                    <div class="stat-box">
+                                        <h4 class="text-primary">{{ cancha.total_reservas_cancha }}</h4>
+                                        <small class="text-muted">Total Reservas</small>
+                                    </div>
+                                </div>
+                                <div class="col-3">
+                                    <div class="stat-box">
+                                        <h4 class="text-success">{{ cancha.reservas_confirmadas_cancha }}</h4>
+                                        <small class="text-muted">Confirmadas</small>
+                                    </div>
+                                </div>
+                                <div class="col-3">
+                                    <div class="stat-box">
+                                        <h4 class="text-info">{{ cancha.reservas_completadas_cancha }}</h4>
+                                        <small class="text-muted">Completadas</small>
+                                    </div>
+                                </div>
+                                <div class="col-3">
+                                    <div class="stat-box">
+                                        <h4 class="text-warning">{{ cancha.reservas_futuras_confirmadas_cancha }}</h4>
+                                        <small class="text-muted">Futuras</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Confirmación final -->
+                    <div class="card border-danger">
+                        <div class="card-header bg-danger text-white">
+                            <h6 class="mb-0">
+                                <i class="bi bi-question-circle"></i>
+                                Confirmación Final
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-center mb-3">
+                                <strong>¿Estás seguro de que deseas desactivar la cancha "{{ cancha.nombre }}"?</strong>
+                            </p>
+                            
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" id="confirmarEntendimiento">
+                                <label class="form-check-label" for="confirmarEntendimiento">
+                                    Entiendo las consecuencias de esta acción y deseo continuar
+                                </label>
+                            </div>
+                            
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                                <a href="{% url 'admin_canchas' %}" class="btn btn-success">
+                                    <i class="bi bi-arrow-left"></i>
+                                    No, Mantener Activa
+                                </a>
+                                
+                                <form method="post" class="d-inline" id="formDesactivar">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger" id="btnDesactivar" disabled>
+                                        <i class="bi bi-pause-circle"></i>
+                                        Sí, Desactivar Cancha
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Información adicional -->
+            <div class="card mt-3 bg-light">
+                <div class="card-body">
+                    <h6 class="card-title">
+                        <i class="bi bi-lightbulb"></i>
+                        ¿Sabías que...?
+                    </h6>
+                    <ul class="list-unstyled mb-0 small">
+                        <li><i class="bi bi-arrow-right"></i> Puedes reactivar la cancha en cualquier momento desde la gestión de canchas</li>
+                        <li><i class="bi bi-arrow-right"></i> Los usuarios con reservas futuras mantendrán sus reservas</li>
+                        <li><i class="bi bi-arrow-right"></i> Esta acción es reversible y no elimina datos permanentemente</li>
+                        <li><i class="bi bi-arrow-right"></i> Las estadísticas e historial se conservan intactos</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_css %}
+<style>
+.stat-box {
+    padding: 10px;
+}
+.stat-box h4 {
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+.card-header h6 {
+    font-weight: 600;
+}
+.alert-heading {
+    font-weight: 600;
+}
+.btn:disabled {
+    cursor: not-allowed;
+}
+.form-check-input:checked ~ .form-check-label {
+    color: #dc3545;
+    font-weight: 500;
+}
+</style>
+{% endblock %}
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const checkboxConfirmar = document.getElementById('confirmarEntendimiento');
+    const btnDesactivar = document.getElementById('btnDesactivar');
+    const formDesactivar = document.getElementById('formDesactivar');
+    
+    // Habilitar/deshabilitar botón según checkbox
+    checkboxConfirmar.addEventListener('change', function() {
+        btnDesactivar.disabled = !this.checked;
+        
+        if (this.checked) {
+            btnDesactivar.classList.remove('btn-danger');
+            btnDesactivar.classList.add('btn-danger');
+        }
+    });
+    
+    // Confirmación adicional antes del envío
+    formDesactivar.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const confirmacion = confirm(
+            '⚠️ CONFIRMACIÓN FINAL ⚠️\n\n' +
+            'Esta acción desactivará la cancha "{{ cancha.nombre }}".\n\n' +
+            '• No se podrán hacer nuevas reservas\n' +
+            '• La cancha se ocultará del sistema público\n' +
+            '• Las reservas existentes se mantienen\n\n' +
+            '¿Estás COMPLETAMENTE seguro?'
+        );
+        
+        if (confirmacion) {
+            // Mostrar indicador de carga
+            btnDesactivar.disabled = true;
+            btnDesactivar.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Desactivando...';
+            
+            // Enviar formulario
+            setTimeout(() => {
+                this.submit();
+            }, 1000);
+        } else {
+            // Resetear checkbox si cancela
+            checkboxConfirmar.checked = false;
+            btnDesactivar.disabled = true;
+        }
+    });
+    
+    // Efecto visual para el checkbox
+    checkboxConfirmar.addEventListener('change', function() {
+        const label = this.nextElementSibling;
+        
+        if (this.checked) {
+            label.style.animation = 'pulse 0.5s ease-in-out';
+        } else {
+            label.style.animation = '';
+        }
+    });
+    
+    // Agregar animación CSS
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+    `;
+    document.head.appendChild(style);
+    
+    // Auto-focus en el checkbox después de un momento
+    setTimeout(() => {
+        checkboxConfirmar.focus();
+    }, 500);
+});
+</script>
+{% endblock %}

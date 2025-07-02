@@ -1,0 +1,248 @@
+{% extends 'base.html' %}
+{% block title %}Registro - Padel Paraguaná{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm mt-4">
+                <div class="card-header bg-primary text-white text-center">
+                    <h4 class="mb-0">
+                        <i class="bi bi-person-plus"></i>
+                        Registro de Jugador
+                    </h4>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                <i class="bi bi-exclamation-triangle"></i>
+                                {{ form.non_field_errors }}
+                            </div>
+                        {% endif %}
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="{{ form.first_name.id_for_label }}" class="form-label">
+                                        <i class="bi bi-person"></i>
+                                        {{ form.first_name.label }}
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    {{ form.first_name }}
+                                    {% if form.first_name.errors %}
+                                        <div class="text-danger small">
+                                            {{ form.first_name.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="{{ form.last_name.id_for_label }}" class="form-label">
+                                        <i class="bi bi-person"></i>
+                                        {{ form.last_name.label }}
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    {{ form.last_name }}
+                                    {% if form.last_name.errors %}
+                                        <div class="text-danger small">
+                                            {{ form.last_name.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.username.id_for_label }}" class="form-label">
+                                <i class="bi bi-at"></i>
+                                {{ form.username.label }}
+                                <span class="text-danger">*</span>
+                            </label>
+                            {{ form.username }}
+                            <div class="form-text">
+                                Letras, dígitos y @/./+/-/_ únicamente. 150 caracteres o menos.
+                            </div>
+                            {% if form.username.errors %}
+                                <div class="text-danger small">
+                                    {{ form.username.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.email.id_for_label }}" class="form-label">
+                                <i class="bi bi-envelope"></i>
+                                {{ form.email.label }}
+                                <span class="text-danger">*</span>
+                            </label>
+                            {{ form.email }}
+                            {% if form.email.errors %}
+                                <div class="text-danger small">
+                                    {{ form.email.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="{{ form.telefono.id_for_label }}" class="form-label">
+                                        <i class="bi bi-phone"></i>
+                                        {{ form.telefono.label }}
+                                    </label>
+                                    {{ form.telefono }}
+                                    {% if form.telefono.errors %}
+                                        <div class="text-danger small">
+                                            {{ form.telefono.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="{{ form.nivel_habilidad.id_for_label }}" class="form-label">
+                                        <i class="bi bi-trophy"></i>
+                                        {{ form.nivel_habilidad.label }}
+                                    </label>
+                                    {{ form.nivel_habilidad }}
+                                    {% if form.nivel_habilidad.errors %}
+                                        <div class="text-danger small">
+                                            {{ form.nivel_habilidad.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.password1.id_for_label }}" class="form-label">
+                                <i class="bi bi-lock"></i>
+                                {{ form.password1.label }}
+                                <span class="text-danger">*</span>
+                            </label>
+                            {{ form.password1 }}
+                            <div class="form-text">
+                                <ul class="mb-0 small">
+                                    <li>Tu contraseña no puede ser muy similar a tu otra información personal.</li>
+                                    <li>Tu contraseña debe contener al menos 8 caracteres.</li>
+                                    <li>Tu contraseña no puede ser una contraseña comúnmente utilizada.</li>
+                                    <li>Tu contraseña no puede ser completamente numérica.</li>
+                                </ul>
+                            </div>
+                            {% if form.password1.errors %}
+                                <div class="text-danger small">
+                                    {{ form.password1.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.password2.id_for_label }}" class="form-label">
+                                <i class="bi bi-lock-fill"></i>
+                                {{ form.password2.label }}
+                                <span class="text-danger">*</span>
+                            </label>
+                            {{ form.password2 }}
+                            <div class="form-text">
+                                Introduce la misma contraseña que antes, para verificación.
+                            </div>
+                            {% if form.password2.errors %}
+                                <div class="text-danger small">
+                                    {{ form.password2.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-person-plus"></i>
+                                Crear Cuenta
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <div class="text-center mt-3">
+                        <p class="mb-0">
+                            ¿Ya tienes cuenta? 
+                            <a href="{% url 'login' %}" class="text-decoration-none">
+                                Inicia sesión aquí
+                            </a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Beneficios de registrarse -->
+            <div class="card mt-3 bg-light">
+                <div class="card-body">
+                    <h6 class="card-title">
+                        <i class="bi bi-star-fill text-warning"></i>
+                        Beneficios de registrarse
+                    </h6>
+                    <ul class="list-unstyled mb-0 small">
+                        <li><i class="bi bi-check-circle text-success"></i> Reserva canchas 24/7</li>
+                        <li><i class="bi bi-check-circle text-success"></i> Ve disponibilidad en tiempo real</li>
+                        <li><i class="bi bi-check-circle text-success"></i> Historial de reservas</li>
+                        <li><i class="bi bi-check-circle text-success"></i> Gestión fácil de tus reservas</li>
+                        <li><i class="bi bi-check-circle text-success"></i> Acceso desde cualquier dispositivo</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-focus en el primer campo
+    const firstNameField = document.getElementById('{{ form.first_name.id_for_label }}');
+    if (firstNameField) {
+        firstNameField.focus();
+    }
+    
+    // Validación de contraseñas en tiempo real
+    const password1 = document.getElementById('{{ form.password1.id_for_label }}');
+    const password2 = document.getElementById('{{ form.password2.id_for_label }}');
+    
+    if (password1 && password2) {
+        function validatePasswords() {
+            if (password2.value && password1.value !== password2.value) {
+                password2.setCustomValidity('Las contraseñas no coinciden');
+                password2.classList.add('is-invalid');
+            } else {
+                password2.setCustomValidity('');
+                password2.classList.remove('is-invalid');
+                if (password2.value) {
+                    password2.classList.add('is-valid');
+                }
+            }
+        }
+        
+        password1.addEventListener('input', validatePasswords);
+        password2.addEventListener('input', validatePasswords);
+    }
+    
+    // Validación de email en tiempo real
+    const emailField = document.getElementById('{{ form.email.id_for_label }}');
+    if (emailField) {
+        emailField.addEventListener('input', function() {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (this.value && !emailRegex.test(this.value)) {
+                this.setCustomValidity('Por favor, introduce un email válido');
+                this.classList.add('is-invalid');
+            } else {
+                this.setCustomValidity('');
+                this.classList.remove('is-invalid');
+                if (this.value) {
+                    this.classList.add('is-valid');
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}
