@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block title %}Bienvenido - Padel Paraguaná{% endblock %}
 {% block content %}
 <div class="container-fluid">
@@ -27,7 +28,13 @@
                     </div>
                 </div>
                 <div class="col-lg-6 text-center">
-                    <i class="bi bi-building display-1 opacity-75"></i>
+                    {# Aquí es donde puedes colocar tu imagen #}
+                    <img src="{% static 'img/padel_hero.png' %}" 
+                        alt="Cancha de pádel" 
+                        class="img-fluid rounded shadow-lg"
+                        style="max-height: 400px; object-fit: cover;"> {# Ajusta el estilo según necesites #}
+                    {# Si no tienes una imagen aún, puedes dejar el icono de Bootstrap como fallback #}
+                    {# <i class="bi bi-building display-1 opacity-75"></i> #}
                 </div>
             </div>
         </div>
@@ -65,9 +72,9 @@
                             <div class="mb-3">
                                 <i class="bi bi-eye display-4 text-primary"></i>
                             </div>
-                            <h5 class="card-title">Disponibilidad en Tiempo Real</h5>
+                            <h5 class="card-title">Disponibilidad</h5>
                             <p class="card-text">
-                                Ve la disponibilidad de todas las canchas en tiempo real. 
+                                Ve la disponibilidad de todas las canchas. 
                                 No más llamadas ni confusiones.
                             </p>
                         </div>

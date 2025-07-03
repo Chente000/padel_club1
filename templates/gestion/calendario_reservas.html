@@ -104,7 +104,7 @@
                                         </td>
                                         {% for horario_data in cancha_data.horarios %}
                                             <td class="p-1 text-center calendar-cell
-                                                {% if horario_data.disponible %}disponible{% else %}ocupado{% endif %}"
+                                                {% if horario_data.disponible %}disponible{% else %}ocupado{% endif %}" style="min-width: 90px; max-width: 120px;" 
                                                 data-cancha-id="{{ cancha_data.cancha.id }}"
                                                 data-fecha="{{ fecha_seleccionada|date:'Y-m-d' }}"
                                                 data-hora="{{ horario_data.hora|time:'H:i' }}">
