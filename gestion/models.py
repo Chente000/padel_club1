@@ -1,8 +1,3 @@
-"""
-Modelos del sistema de gestión de canchas de pádel.
-Este módulo contiene las clases de modelo que representan las entidades
-principales del sistema: Usuario, Cancha y Reserva.
-"""
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator

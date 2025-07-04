@@ -1,6 +1,3 @@
-"""
-Configuración de la aplicación de gestión de canchas de pádel.
-"""
 from django.apps import AppConfig
 class GestionConfig(AppConfig):
     """Configuración de la aplicación gestion."""

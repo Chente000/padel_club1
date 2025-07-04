@@ -1,7 +1,3 @@
-"""
-Configuración de URLs para la aplicación de gestión de canchas de pádel.
-Define todas las rutas de la aplicación organizadas por funcionalidad.
-"""
 from django.urls import path
 from . import views
 urlpatterns = [

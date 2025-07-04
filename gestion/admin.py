@@ -1,7 +1,3 @@
-"""
-Configuración del panel de administración de Django.
-Define cómo se muestran y administran los modelos en el admin.
-"""
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.utils.html import format_html

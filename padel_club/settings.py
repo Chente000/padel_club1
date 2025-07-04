@@ -1,7 +1,3 @@
-"""
-Configuración de Django para el proyecto padel_club.
-Generado por 'django-admin startproject' usando Django.
-"""
 from pathlib import Path
 import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.

@@ -1,8 +1,3 @@
-"""
-Vistas para la aplicación de gestión de canchas de pádel.
-Define todas las vistas necesarias para el funcionamiento del sistema,
-incluyendo autenticación, gestión de reservas, canchas y administración.
-"""
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -256,6 +251,7 @@ def cancelar_reserva(request, reserva_id):
         return redirect('admin_reservas')
     else:
         return redirect('mis_reservas')
+    
 @login_required
 @user_passes_test(es_jugador_o_admin)
 def calendario_reservas(request):
@@ -278,30 +274,19 @@ def calendario_reservas(request):
     
     # Crear matriz de disponibilidad
     calendario_data = []
-    for cancha in canchas:
-        cancha_data = {
-            'cancha': cancha,
-            'horarios': []
+    for hora in horarios:
+        hora_data = {
+            'hora': hora,
+            'canchas': []
         }
-        
-        reservas_del_dia = cancha.get_reservas_del_dia(fecha_seleccionada)
-        horarios_ocupados = {reserva.hora_inicio: reserva for reserva in reservas_del_dia}
-        
-        for horario in horarios:
-            if horario in horarios_ocupados:
-                cancha_data['horarios'].append({
-                    'hora': horario,
-                    'disponible': False,
-                    'reserva': horarios_ocupados[horario]
-                })
-            else:
-                cancha_data['horarios'].append({
-                    'hora': horario,
-                    'disponible': True,
-                    'reserva': None
-                })
-        
-        calendario_data.append(cancha_data)
+        for cancha in canchas:
+            reserva = cancha.get_reservas_del_dia(fecha_seleccionada).filter(hora_inicio=hora).first()
+            hora_data['canchas'].append({
+                'cancha': cancha,
+                'reserva': reserva,
+                'disponible': not reserva
+            })
+        calendario_data.append(hora_data)
     
     # Navegación de fechas
     fecha_anterior = fecha_seleccionada - timedelta(days=1)
@@ -313,8 +298,10 @@ def calendario_reservas(request):
         'fecha_siguiente': fecha_siguiente,
         'calendario_data': calendario_data,
         'horarios': horarios,
+        'canchas': canchas,
     }
     return render(request, 'gestion/calendario_reservas.html', context)
+
 @login_required
 @user_passes_test(es_jugador_o_admin)
 def reserva_rapida(request):

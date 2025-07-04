@@ -186,6 +186,7 @@ class CanchaForm(forms.ModelForm):
         if tarifa and tarifa <= 0:
             raise ValidationError('La tarifa debe ser un valor positivo.')
         return tarifa
+    
 class ReservaForm(forms.ModelForm):
     """Formulario para crear reservas."""
     
