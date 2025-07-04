@@ -256,7 +256,6 @@ def cancelar_reserva(request, reserva_id):
 @user_passes_test(es_jugador_o_admin)
 def calendario_reservas(request):
     """Vista del calendario de reservas."""
-    # Obtener fecha desde parámetros GET o usar fecha actual
     fecha_str = request.GET.get('fecha')
     if fecha_str:
         try:
@@ -265,42 +264,91 @@ def calendario_reservas(request):
             fecha_seleccionada = timezone.now().date()
     else:
         fecha_seleccionada = timezone.now().date()
-    
-    # Obtener canchas activas
+
     canchas = Cancha.objects.filter(activa=True).order_by('nombre')
-    
-    # Horarios de funcionamiento (8 AM - 10 PM)
-    horarios = [time(hour=h) for h in range(8, 22)]
-    
-    # Crear matriz de disponibilidad
+    print(f"\n--- DEBUG: Canchas activas (ordenadas por nombre):")
+    for c in canchas:
+        print(f"  ID: {c.id}, Nombre: {c.nombre}")
+    print("--- FIN DEBUG: Canchas ---\n")
+
+    horarios_del_dia = [time(hour=h) for h in range(8, 22)] # Horarios de 8 AM a 9 PM (hasta antes de las 10 PM)
+
+    reservas_confirmadas_hoy = Reserva.objects.filter(
+        fecha_reserva=fecha_seleccionada,
+        estado='confirmada'
+    ).select_related('cancha', 'jugador') # Optimiza la carga de objetos relacionados
+
+    reservas_por_cancha_hora = {}
+    print(f"\n--- DEBUG: Reservas confirmadas para {fecha_seleccionada}:")
+    if not reservas_confirmadas_hoy:
+        print("  No hay reservas confirmadas para esta fecha.")
+    for reserva in reservas_confirmadas_hoy:
+        key = (reserva.cancha.id, reserva.hora_inicio)
+        reservas_por_cancha_hora[key] = reserva
+        print(f"  Reserva ID: {reserva.id}, Cancha ID: {reserva.cancha.id}, Hora: {reserva.hora_inicio}, Jugador: {reserva.jugador.username}, Cancha Nombre (desde reserva): {reserva.cancha.nombre}")
+    print("--- FIN DEBUG: Reservas ---\n")
+
     calendario_data = []
-    for hora in horarios:
+    print("\n--- DEBUG: Construyendo calendario_data:")
+    for hora in horarios_del_dia:
         hora_data = {
             'hora': hora,
-            'canchas': []
+            'canchas': [] # Lista de diccionarios para cada cancha en esta hora
         }
         for cancha in canchas:
-            reserva = cancha.get_reservas_del_dia(fecha_seleccionada).filter(hora_inicio=hora).first()
-            hora_data['canchas'].append({
-                'cancha': cancha,
-                'reserva': reserva,
-                'disponible': not reserva
-            })
+            reserva = reservas_por_cancha_hora.get((cancha.id, hora))
+            
+            es_mi_reserva = False
+            if reserva and request.user.is_authenticated and reserva.jugador == request.user:
+                es_mi_reserva = True
+
+            cancha_info_for_cell = {
+                'cancha': cancha, # El objeto Cancha completo
+                'reserva': reserva, # El objeto Reserva o None
+                'disponible': not bool(reserva), # True si no hay reserva, False si la hay
+                'es_mi_reserva': es_mi_reserva
+            }
+            hora_data['canchas'].append(cancha_info_for_cell)
         calendario_data.append(hora_data)
+    print("--- FIN DEBUG: calendario_data ---\n")
+
+    # --- DEBUG: Imprimir la estructura final de calendario_data en JSON ---
+    print("\n--- DEBUG: Estructura final de calendario_data antes de renderizar (JSON):")
+    serializable_calendario_data = []
+    for hora_data_item in calendario_data:
+        serializable_hora_data = {
+            'hora': hora_data_item['hora'].isoformat(timespec='minutes'),
+            'canchas': []
+        }
+        for cancha_data_item in hora_data_item['canchas']:
+            serializable_cancha_data = {
+                'cancha_id': cancha_data_item['cancha'].id,
+                'cancha_nombre': cancha_data_item['cancha'].nombre,
+                'disponible': cancha_data_item['disponible'],
+                'es_mi_reserva': cancha_data_item['es_mi_reserva'],
+                'reserva_id': cancha_data_item['reserva'].id if cancha_data_item['reserva'] else None,
+                'reserva_jugador': cancha_data_item['reserva'].jugador.username if cancha_data_item['reserva'] else None
+            }
+            serializable_hora_data['canchas'].append(serializable_cancha_data)
+        serializable_calendario_data.append(serializable_hora_data)
     
-    # Navegación de fechas
+    print(json.dumps(serializable_calendario_data, indent=2))
+    print("--- FIN DEBUG: Estructura final de calendario_data (JSON) ---\n")
+    # --- FIN DEBUG ---
+
     fecha_anterior = fecha_seleccionada - timedelta(days=1)
     fecha_siguiente = fecha_seleccionada + timedelta(days=1)
-    
+
     context = {
         'fecha_seleccionada': fecha_seleccionada,
         'fecha_anterior': fecha_anterior,
         'fecha_siguiente': fecha_siguiente,
-        'calendario_data': calendario_data,
-        'horarios': horarios,
-        'canchas': canchas,
+        'canchas': canchas, # Lista de objetos Cancha para el encabezado de columnas (thead)
+        'horarios': horarios_del_dia, # Lista de objetos time para las filas (primer td)
+        'calendario_data': calendario_data, # La matriz de datos para el cuerpo de la tabla
     }
     return render(request, 'gestion/calendario_reservas.html', context)
+
 
 @login_required
 @user_passes_test(es_jugador_o_admin)

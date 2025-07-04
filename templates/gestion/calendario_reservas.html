@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{# {% load custom_filters %} NO ES NECESARIO CON LA ESTRUCTURA ACTUAL DE LA VISTA #}
 
 {% block title %}Calendario de Reservas - Padel Paraguaná{% endblock %}
 
@@ -108,6 +109,9 @@
                                                 data-fecha="{{ fecha_seleccionada|date:'Y-m-d' }}"
                                                 data-hora="{{ hora_data.hora|time:'H:i' }}">
                                                 
+                                                {# DEBUG VISUAL: Muestra el ID de la cancha en la celda #}
+                                                <span class="badge bg-dark mb-1">Cancha ID: {{ cancha_data.cancha.id }}</span>
+                                                
                                                 {% if cancha_data.disponible %}
                                                     <button class="btn btn-sm btn-success w-100 reserva-rapida"
                                                             data-cancha-id="{{ cancha_data.cancha.id }}"
@@ -119,7 +123,7 @@
                                                     </button>
                                                 {% else %}
                                                     <div class="text-center">
-                                                        {% if cancha_data.reserva.jugador == user %}
+                                                        {% if cancha_data.es_mi_reserva %} {# Usamos 'es_mi_reserva' directamente del contexto #}
                                                             <i class="bi bi-person-circle text-primary fs-4" title="Tu reserva"></i>
                                                             <br>
                                                             <small class="text-primary fw-bold">Tu reserva</small>
@@ -132,13 +136,11 @@
                                                             <i class="bi bi-person-fill text-muted fs-4"></i>
                                                             <br>
                                                             <small class="text-muted">Ocupado</small>
-                                                            {% if user.is_staff or user.is_superuser %} {# Puedes usar user.es_administrador si lo tienes #}
+                                                            {% if user.es_administrador %} {# Usamos el método es_administrador #}
                                                                 <br>
                                                                 <small class="text-muted">
                                                                     {{ cancha_data.reserva.jugador.get_full_name|default:cancha_data.reserva.jugador.username }}
                                                                     <br>
-                                                                    <a href="{% url 'ver_reserva' cancha_data.reserva.id %}" class="text-primary">
-                                                                        Ver Reserva
                                                                     </a>
                                                                 </small>
                                                             {% endif %}
@@ -246,6 +248,49 @@
 </div>
 {% endblock %}
 
+{% block extra_css %}
+<style>
+    /* Estilos para asegurar que las celdas de la tabla se comporten correctamente */
+    .calendar-table td {
+        display: table-cell !important; /* Fuerza el comportamiento de celda de tabla */
+        vertical-align: middle;
+        white-space: normal; /* Permite que el contenido se ajuste */
+        padding: 0.5rem; /* Ajusta el padding si es necesario */
+    }
+
+    /* Ajustes para el contenedor table-responsive si causa problemas */
+    .table-responsive {
+        overflow-x: auto; /* Mantiene el scroll horizontal si es necesario */
+        -webkit-overflow-scrolling: touch; /* Mejora el scroll en iOS */
+    }
+
+    /* Asegura que el contenido dentro de la celda no cause desbordamiento */
+    .calendar-table td > div {
+        min-width: 60px; /* Un ancho mínimo para los contenedores internos */
+    }
+
+    /* Estilos generales de la tabla (mantener de tu código original) */
+    .card-header {
+        border-bottom: 0;
+        border-top-left-radius: 0.5rem;
+        border-top-right-radius: 0.5rem;
+    }
+    .card {
+        border-radius: 0.5rem;
+    }
+    .table-responsive {
+        border-radius: 0.5rem; /* Apply border-radius to the responsive table container */
+        overflow: hidden; /* Hide overflow to respect border-radius */
+    }
+    .table thead th {
+        vertical-align: middle;
+    }
+    .table tbody td {
+        vertical-align: middle;
+    }
+</style>
+{% endblock %}
+
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -272,7 +317,6 @@ document.addEventListener('DOMContentLoaded', function() {
             // Crear contenido del modal
             contenidoConfirmacion.innerHTML = `
                 <div class="text-center">
-                    {# CAMBIO AQUÍ: Usamos un ícono de checkmark verde en lugar del edificio #}
                     <i class="bi bi-check-circle-fill display-4 text-success mb-3"></i> 
                     <h5>Confirmar Reserva</h5>
                     <div class="table-responsive">
